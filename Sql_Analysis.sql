@@ -1,0 +1,106 @@
+SELECT * FROM hotel_data LIMIT 10;
+
+# Count the total number of bookings for each hotel
+SELECT hotel, COUNT(*) AS total_bookings
+FROM hotel_data
+GROUP BY hotel;
+
+
+# cancellation rate for each hotel : 38.75
+SELECT 
+    ROUND(SUM(is_canceled)*100.0/COUNT(*),2) AS cancellation_rate
+FROM hotel_data; 
+
+
+
+# - Monthly booking trends
+
+SELECT arrival_date_year, arrival_date_month, COUNT(*) AS total_bookings
+FROM hotel_data
+GROUP BY arrival_date_year, arrival_date_month
+ORDER BY arrival_date_year, arrival_date_month;
+
+
+
+#  Lead time vs cancellations
+
+SELECT lead_time, AVG(is_canceled) AS cancellation_rate
+FROM hotel_data
+GROUP BY lead_time
+ORDER BY lead_time;
+
+
+# - Market segment performance
+
+SELECT market_segment, COUNT(*) AS total_bookings,
+       ROUND(AVG(is_canceled)*100,2) AS cancellation_rate
+FROM hotel_data
+GROUP BY market_segment
+ORDER BY total_bookings DESC;
+
+
+# - Distribution channel comparison
+
+SELECT distribution_channel, COUNT(*) AS total_bookings,
+       ROUND(AVG(is_canceled)*100,2) AS cancellation_rate
+FROM hotel_data
+GROUP BY distribution_channel;
+
+
+# - Reserved vs assigned room mismatch
+
+SELECT reserved_room_type, assigned_room_type, COUNT(*) AS mismatches
+FROM hotel_data
+WHERE reserved_room_type <> assigned_room_type
+GROUP BY reserved_room_type, assigned_room_type;
+
+
+
+# Average ADR by hotel
+SELECT hotel, ROUND(AVG(average_daily_rate),2) AS avg_adr
+FROM hotel_data
+GROUP BY hotel;
+
+
+
+# Repeated guest ratio
+SELECT is_repeated_guest, COUNT(*) AS total_bookings
+FROM hotel_data
+GROUP BY is_repeated_guest;
+
+
+
+# Special requests vs cancellations
+SELECT total_of_special_requests, 
+       COUNT(*) AS total_bookings,
+       ROUND(AVG(is_canceled)*100,2) AS cancellation_rate
+FROM hotel_data
+GROUP BY total_of_special_requests
+ORDER BY total_of_special_requests;
+
+
+
+
+# - Top 10 countries by bookings
+
+SELECT country, COUNT(*) AS total_bookings
+FROM hotel_data
+GROUP BY country
+ORDER BY total_bookings DESC
+LIMIT 10;
+
+
+
+
+
+# Company vs Agent bookings
+SELECT 
+    CASE 
+        WHEN company IS NOT NULL THEN 'Company'
+        WHEN agent IS NOT NULL THEN 'Agent'
+        ELSE 'Direct'
+    END AS booking_type,
+    COUNT(*) AS total_bookings,
+    ROUND(AVG(is_canceled)*100,2) AS cancellation_rate
+FROM hotel_data
+GROUP BY booking_type;
